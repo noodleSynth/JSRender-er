@@ -1,6 +1,6 @@
 import { mutateRenderNode } from "../node/RenderNode.type";
 import { spawnSeedNode } from "../node/SeedNode.type";
-import { viewport } from "./ViewPort";
+import { viewport } from "../game/ViewPort";
 
 const particles: {
   spawnTime: number,
@@ -21,29 +21,29 @@ export const SphereNode = mutateRenderNode(spawnSeedNode("Sphere", () => {
   if (generatorLife > 10) generatorLife = 0
 
   // Life
-  if(!(generatorLife % 5) && particles.length < maxParticles)
+  if (!(generatorLife % 5) && particles.length < maxParticles)
     particles.push({
       spawnTime: Date.now(),
-      deviation: Math.random() - 0.5 
+      deviation: Math.random() - 0.5
     })
-  
+
   // Render Prep
   const draw = viewport.draw
   draw.fillStyle = "#FF0000"
   draw.strokeStyle = "#0000FF"
-  
+
   // Each dot
   particles.forEach((p, i) => {
     // Lifespan
     const age = (Date.now() - p.spawnTime) / 1000
 
     // Death
-    if(age > maxAge)
+    if (age > maxAge)
       return particles.splice(i, 1)
-    
+
     // Position
     const xvar = (distance * (age / maxAge) * p.deviation)
-    const yvar = 100 * Math.sin((age/(maxAge / 10)))
+    const yvar = 100 * Math.sin((age / (maxAge / 10)))
 
     // Colours
     const rgb = [Math.sin((age / (maxAge))), Math.cos((age / (maxAge))), Math.tan((age / (maxAge) - 0.5))]

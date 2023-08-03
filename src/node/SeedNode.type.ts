@@ -1,4 +1,4 @@
-import { NodeTypes } from "./NodeType.enum"
+import { NodeTypes } from "./Injector.type"
 
 
 export interface SeedNode{

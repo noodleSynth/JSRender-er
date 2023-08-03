@@ -1,7 +1,7 @@
 import { mutateRenderNode } from "./node/RenderNode.type";
 import { spawnSeedNode } from "./node/SeedNode.type";
 import { rootNode } from "./scene/RootNode";
-import { viewport } from "./scene/ViewPort";
+import { viewport } from "./game/ViewPort";
 
 const camera = {
   get FOV() {
@@ -28,7 +28,7 @@ var map = {
     return [100, 100]
   },
 
-  cell(coords: number[]){
+  cell(coords: number[]) {
     const [x, y] = this.mapSpace(coords)
     return this.cells[y][x]
   },
@@ -56,7 +56,7 @@ const player = {
 const rayCount = 20
 const zStep = 20
 const castIntervals = 50
-var keyPressed : string | undefined = undefined
+var keyPressed: string | undefined = undefined
 
 export const mapNode = mutateRenderNode(spawnSeedNode("Minimap", () => {
   const [mapW, mapH] = map.size
@@ -84,12 +84,12 @@ export const mapNode = mutateRenderNode(spawnSeedNode("Minimap", () => {
 
   map.cells.forEach((row, rowI) => row.map((col, colI) => {
     const colourShift = Math.round((col / mapW) * 255).toString(16)
-    draw.fillStyle =  (rowI + colI) % 2 ? '#0f0f0f' : '#F0F0F0'//`#00${colourShift}FF` // (rowI + colI) % 2 ? `#00${colourShift}0F` :
+    draw.fillStyle = (rowI + colI) % 2 ? '#0f0f0f' : '#F0F0F0'//`#00${colourShift}FF` // (rowI + colI) % 2 ? `#00${colourShift}0F` :
 
     draw.fillRect(mapXoff + (colI * cellW), mapYoff + (rowI * cellH), cellW, cellH)
     draw.fillStyle = (rowI + colI) % 2 ? '#FFFFFF' : '#000000'
 
-    draw.fillText(col.toString(), mapXoff + (colI * cellW) + (cellW / 2), mapYoff + (rowI * cellH) + (cellH/2))
+    draw.fillText(col.toString(), mapXoff + (colI * cellW) + (cellW / 2), mapYoff + (rowI * cellH) + (cellH / 2))
   }))
 
   const [px, py] = player.position
@@ -108,12 +108,12 @@ export const mapNode = mutateRenderNode(spawnSeedNode("Minimap", () => {
   const lookingCell = map.cell(player.position.map((e, i) => look[i] + e))
 
   player.position = [
-    ((keyPressed === 'd' ? 1 : 0) * delta  ) + 
-    ((keyPressed === 'a' ? 1 : 0) * -delta ),
-    ((keyPressed === 's' ? 1 : 0) * delta) + 
-    ((keyPressed === 'w'? 1 : 0) * -delta)
+    ((keyPressed === 'd' ? 1 : 0) * delta) +
+    ((keyPressed === 'a' ? 1 : 0) * -delta),
+    ((keyPressed === 's' ? 1 : 0) * delta) +
+    ((keyPressed === 'w' ? 1 : 0) * -delta)
   ].map((e, i) => delta * e * (map.cellSize[i] / 2)).map((e, i) => (player.position[i] + e))
-  
+
   player.direction = player.direction + ((keyPressed === "ArrowLeft" ? 1 : 0) * (delta * 50)) + ((keyPressed === "ArrowRight" ? -1 : 0) * (delta * 50))
 
   draw.strokeText((player.position).map(e => e.toFixed(2)).join(" | "), 50, 100)
@@ -125,10 +125,10 @@ export const mapNode = mutateRenderNode(spawnSeedNode("Minimap", () => {
   const lookVec = look.map((e, i) => screenLocation[i] + (map.cellSize[i] * e))
 
   if (lookingCell % 4 === 0)
-  draw.fillStyle = "#FF00ff"
+    draw.fillStyle = "#FF00ff"
   else if (lookingCell > 5)
     draw.fillStyle = "#00ffff"
-      else
+  else
     draw.fillStyle = "#00ff00"
   draw.beginPath();
   draw.ellipse(...lookVec as [number, number], 5, 5, Math.PI / 4, 0, 2 * Math.PI);
@@ -154,7 +154,7 @@ export const mapNode = mutateRenderNode(spawnSeedNode("Minimap", () => {
 
   // draw.strokeStyle = `#FF0000`
   // draw.lineWidth = 1
-  
+
   // draw.beginPath()
   // draw.moveTo(mapX, mapY)
   // draw.lineTo(mapX + rx1, mapY + ry1)
@@ -190,13 +190,13 @@ export const mapNode = mutateRenderNode(spawnSeedNode("Minimap", () => {
 
   return
   new Array(rayCount).fill(0).map((_, rayIndex) => {
-    
-    const [rxe, rye] = [Math.cos(lookRads + ((FOVDiv * (rayIndex / rayCount) * 2) - FOVDiv  )), Math.sin(lookRads + ((FOVDiv * (rayIndex / rayCount) * 2) - FOVDiv))]
-    const [rxr, ryr] = [rxe, rye].map((e, i) =>  (e * castIntervals * zStep))
+
+    const [rxe, rye] = [Math.cos(lookRads + ((FOVDiv * (rayIndex / rayCount) * 2) - FOVDiv)), Math.sin(lookRads + ((FOVDiv * (rayIndex / rayCount) * 2) - FOVDiv))]
+    const [rxr, ryr] = [rxe, rye].map((e, i) => (e * castIntervals * zStep))
     draw.fillStyle = `#00f0f0`
     draw.strokeStyle = `#00f0f0`
     draw.lineWidth = 1
-    
+
 
     draw.beginPath()
     draw.moveTo(mapX, mapY)
@@ -215,11 +215,11 @@ export const mapNode = mutateRenderNode(spawnSeedNode("Minimap", () => {
       const cell = map.cell([rx, ry].map((e, i) => Math.max(Math.min((map.size[i] - 1), e), 0)))
 
       draw.fillStyle = `#00ff00`
-      
-      if (cell > 5) 
+
+      if (cell > 5)
         break
-      
-        draw.fillStyle = `#00ff00`
+
+      draw.fillStyle = `#00ff00`
       draw.beginPath();
       draw.ellipse(rrx + mapX, rry + mapY, 2, 2, Math.PI / 4, 0, 2 * Math.PI);
       draw.stroke();

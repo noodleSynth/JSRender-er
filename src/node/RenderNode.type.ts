@@ -1,5 +1,5 @@
 import { NodeMutator } from "../mutator/NodeMutator.type"
-import { NodeTypes } from "./NodeType.enum"
+import { NodeTypes } from "./Injector.type"
 import { SeedNode } from "./SeedNode.type"
 
 export interface RenderNode extends SeedNode{
