@@ -1,12 +1,14 @@
+import { Render } from './scene1/Render'
 import './style.css'
 
-let running = false
-
+// Adding controls for the render
 document.querySelector("#start")?.addEventListener("click", () => {
-  running = true
+  Render.start()
   // Render start loop goes here
 })
 
 document.querySelector("#stop")?.addEventListener("click", () => {
-  running = false
+  Render.stop()
 })
+
+Render.start()
