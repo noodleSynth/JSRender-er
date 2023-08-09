@@ -1,30 +1,39 @@
-import { Injector, injector } from "../pipeline/Injector.type";
-import { pipeLine } from "../pipeline/Pipeline.type";
+import { Injector, injector } from "../core/pipeline/Injector.type";
+import { pipeLine } from "../core/pipeline/Pipeline.type";
 import { canvasInjector, CanvasInjector } from "./Canvas";
 
 type Vec2 = [number, number]
 
 export interface RenderInjector extends Injector {
+  initialize(): Promise<void>;
   running: boolean,
   lastFrame: number
   start(): void,
   stop(): void,
-  reset(): void
+  reset(): void,
 }
 
+export interface LifeCycleInjector extends Injector {
+  preInit?: { (): void },
+  init?: { (): void },
+  postInit?: { (): void },
+}
 
 
 export const Render: RenderInjector = injector({
   running: false,
   lastFrame: 0,
+  async initialize() {
+    await renderPipeline.run<LifeCycleInjector>(["preInit"])
+    await renderPipeline.run<LifeCycleInjector>(["init"])
+    await renderPipeline.run<LifeCycleInjector>(["postInit"])
+  },
   // Start the render loop
-  start() {
-    renderPipeline.run<CanvasInjector>(["init", "render"])
-
+  async start() {
     // The render loop
     const render = async () => {
       const timeDelta = Date.now() - this.lastFrame
-      await renderPipeline.run<CanvasInjector>("render", true, timeDelta)
+      await renderPipeline.run<CanvasInjector>("render", false, timeDelta)
 
       // Rerun
       this.lastFrame = Date.now()

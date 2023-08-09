@@ -1,15 +1,18 @@
-import { Injector, injector } from "../pipeline/Injector.type";
-import { pipeLine } from "../pipeline/Pipeline.type";
+import { type Control, control } from "../core/control/Control.type";
+import { Injector, injector } from "../core/pipeline/Injector.type";
+import { pipeLine } from "../core/pipeline/Pipeline.type";
 import { viewContext } from "./Canvas";
-import { renderPipeline } from "./Render";
+import { LifeCycleInjector, renderPipeline } from "./Render";
 import { Sphere } from "./Sphere";
 
 type Vec2 = [number, number]
 
-export interface CloudInjector extends Injector {
+export interface CloudInjector extends LifeCycleInjector {
   init(): void,
   render(delta: number): void,
-  timeElapsed: number
+  timeElapsed: number,
+  duration?: Control<number>
+  separation?: Control<number>
 }
 
 
@@ -17,20 +20,24 @@ export const cloudInjector: CloudInjector = injector({
   timeElapsed: 0,
   init() {
     this.timeElapsed = 0
+    this.duration = control("Duration", 2)
+    this.separation = control("Separation", 10)
+    this.deviation = control("Deviation", 50)
   },
   render(delta: number) {
 
     if (isNaN(this.timeElapsed)) this.timeElapsed = 0
 
     const draw = viewContext.draw
-    this.timeElapsed = (this.timeElapsed + delta) % 10000
+
+    this.timeElapsed = (this.timeElapsed + (delta / 1000))
+    if (this.timeElapsed > this.duration.value) this.timeElapsed = -0.1
     const { sin, cos, PI } = Math
 
-    const apsect = viewContext.size[0] * viewContext.size[1]
     const screenSize = viewContext.size
     const screenCenter = screenSize.map((e) => e / 2)
 
-    const progress = (((this.timeElapsed / 1000) / 10) * 360) * (PI / 180)
+    const progress = (this.timeElapsed / this.duration.value)
 
 
 
@@ -56,20 +63,20 @@ export const cloudInjector: CloudInjector = injector({
 
 
 
-    for (var d = 0; d < 10; d++) {
+    viewContext.draw.fillStyle = "#FF0000"
+    viewContext.draw.fillText(`Progress: ${(progress * 100).toFixed(2).toString()}`, ...[100, 120].map((e, i) => viewContext.aspectRatio[i] * e))
 
-      const ballProgress = progress + (d / 10)
-      const size = [25, 25].map((e, i) => e + ((sin(ballProgress) / 1) * e)) as Vec2
-      // Closest to the viewport
-      const pointScalar = [cos, sin].map((e, i) => e(ballProgress) * [0.85, 0.5][i])
-      const foreground = pointScalar.map((e, i) => screenCenter[i] + (e * screenCenter[i] * (d / 10))) as Vec2
+    const size = [25, 25].map((e, i) => e * (1 + sin(progress * (Math.PI))) / 2) as Vec2
+    // Closest to the viewport
+
+    const foreground = [viewContext.size[0], screenCenter[1]].map((e, i) => i ? screenCenter[1] + (e * sin(progress * (Math.PI)) * ((this.deviation.value - 50) / 50)) : e * progress)
 
 
-      draw.fillStyle = "#B8B8B8"
-      draw.beginPath();
-      draw.ellipse(...foreground, ...size, Math.PI / 4, 0, 2 * Math.PI);
-      draw.fill()
-    }
+    draw.fillStyle = "#B8B8B8"
+    draw.beginPath();
+    draw.ellipse(...foreground, ...size, Math.PI / 4, 0, 2 * Math.PI);
+    draw.fill()
+
 
 
   },

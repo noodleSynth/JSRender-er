@@ -1,0 +1,40 @@
+
+body{
+  border: red 1px solid;
+  align-items: stretch;
+  justify-content: stretch;
+  display: flex;
+}
+
+.pane{
+  margin: 0px;
+  height: auto;
+  width: auto;
+  border: solid 1px blue;
+  padding: 4px;
+  flex: 1;
+}
+
+.horizontal, .vertical{
+  display: flex;
+}
+
+.vertical{
+  flex-direction: column;
+}
+
+.root{
+  width: 100%;
+  justify-content: center;
+}
+
+.preview{
+  background-color: black;
+  display: flex;
+  max-height: 100%;
+  canvas{
+    margin: auto;
+    display: block;
+    border: solid blue 1px
+  }
+}

@@ -10,6 +10,7 @@ type OutletConfig<T extends Injector> = {
 
 export const injector = <T extends Injector>(outletSpec: OutletConfig<T>): T => {
   const self = {
+
     children: [] as Injector[],
     outlets: Object.entries(outletSpec).filter(([_, cb]: [string, any]) => typeof (cb) === 'function').map(([key]) => key),
   } as T

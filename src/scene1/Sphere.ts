@@ -1,10 +1,11 @@
-import { Injector, injector } from "../pipeline/Injector.type";
+import { Injector, injector } from "../core/pipeline/Injector.type";
 import { viewContext } from "./Canvas";
+import { LifeCycleInjector } from "./Render";
 
 
 type Vec2 = [number, number]
 
-export interface SphereInjector extends Injector {
+export interface SphereInjector extends LifeCycleInjector {
   render(delta: number): void
 }
 
@@ -12,7 +13,7 @@ export interface SphereInjector extends Injector {
 export const Sphere: SphereInjector = injector({
 
   render(delta: number) {
-    const { draw, size } = viewContext
+    const { draw, size, aspectRatio } = viewContext
 
 
     const [x, y, w] = [
@@ -22,13 +23,13 @@ export const Sphere: SphereInjector = injector({
 
     draw.strokeStyle = '#FFFFFF'
     draw.fillStyle = '#000000'
-    draw.lineWidth = 16
+    draw.lineWidth = 16 * aspectRatio[0]
     draw.beginPath();
     draw.ellipse(x, y, w, w, Math.PI / 4, 0, 2 * Math.PI);
     draw.stroke();
 
     draw.beginPath();
-    draw.ellipse(x - (w * 0.04), y - (w * 0.04), w, w, Math.PI / 4, 0, 2 * Math.PI);
+    draw.ellipse(x - (w * 0.08), y - (w * 0.08), w, w, Math.PI / 4, 0, 2 * Math.PI);
     draw.fill();
   },
 

@@ -1,4 +1,4 @@
-import { Injector } from "./Injector.type";
+import { type Injector } from "./Injector.type"
 
 type OutletSelection<T extends Injector> = (keyof Omit<T, "children" | "outlets">)[] | (keyof Omit<T, "children" | "outlets">)
 
@@ -22,6 +22,8 @@ export const pipeLine = <T extends Injector>(start: T): Pipeline => {
       return this.startTime ? Date.now() - this.startTime : -1
     },
 
+
+    // Warning, this is at risk of being circular!
     run<E extends Injector>(outlets: OutletSelection<E>, forward: boolean = true, ...args: any[]) {
 
       const execute = async (i: E) => {
@@ -34,11 +36,11 @@ export const pipeLine = <T extends Injector>(start: T): Pipeline => {
             await (i[e] as Function)(...args)
           }))
         else {
-          if (!i[outlets]) return;
-          await (i[outlets] as Function)(...args)
+          if (i[outlets])
+            await (i[outlets] as Function)(...args)
         }
 
-        if (forward) await Promise.all(i.children.map(async (e) => await execute(e as E)))
+        if (!forward) await Promise.all(i.children.map(async (e) => await execute(e as E)))
       }
 
       this.startTime = Date.now()
