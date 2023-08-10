@@ -13,9 +13,11 @@ interface ControlUpdateMessage {
   type: ControlType
 }
 
-socket.on("update_control", ({ key, value }: ControlUpdateMessage) => {
+socket.on("update_control", ({ key, value, type }: ControlUpdateMessage) => {
   console.log(key, value)
-  controlRegistry[key]._value = value
+  if (!controlRegistry[key]) controlRegistry[key] = { _value: value } as any as Control<any>
+  else controlRegistry[key]._value = value
+  if (changeListeners[key]) changeListeners[key].map(e => e({ key, value, type }))
 })
 
 socket.on("connect", () => {
@@ -32,6 +34,9 @@ export interface ControlRegistry {
 }
 
 export const controlRegistry: ControlRegistry = {}
+export const changeListeners = {} as {
+  [key: string]: { (msg: ControlUpdateMessage): void }[]
+}
 
 export const useControlRegistry = () => ({
   registryList: () => {
