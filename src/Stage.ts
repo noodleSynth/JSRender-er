@@ -27,7 +27,7 @@ export default {
     const dir = Math.abs((sign + 1) / 2)
 
 
-
+    // @ts-ignore
     this.size = [width, height].map((e, i) => i ? (dir * e) + (!dir * ar) * e : (!dir * e) + ((dir * ar) * e))
 
     console.log(sign, ar, dir)
