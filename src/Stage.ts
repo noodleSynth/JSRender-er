@@ -31,7 +31,7 @@ export default {
     this.size = [width, height].map((e, i) => i ? (dir * e) + (!dir * ar) * e : (!dir * e) + ((dir * ar) * e))
 
     console.log(sign, ar, dir)
-    console.assert(this.aspectRatio === newAR)
+
   },
 
   set size([width, height]: Vec2) {

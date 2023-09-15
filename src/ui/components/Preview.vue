@@ -1,27 +1,33 @@
 <template>
   <div class="panel" id="preview">
     <div id="backplate" class="panel center" ref="container">
-      <canvas v-bind="size" id="screen"></canvas>
+      <canvas v-bind="size" ref="canvas" id="screen"></canvas>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import Stage from '../Stage';
+import { useStage } from '../compose/Stage.compose';
 
-const aspectRatio = computed(() => Stage.aspectRatio)
+// import { useStageStore } from '../store/StageStore';
+
 
 const container = ref<HTMLElement>()
+const canvas = ref<HTMLCanvasElement>()
+// const stageStore = useStageStore()
+const { aspectRatio } = useStage()
 
 const size = computed(() => {
   if (!container.value) return {}
-  const { height } = container.value.getBoundingClientRect()
-  return {
-    width: height * aspectRatio.value,
-    height
-  }
+  const { width, height } = container.value!.getBoundingClientRect()
+  const obj = { width, height }
+  const { sin, cos, PI } = Math
+  const ar = ((aspectRatio.value + 1) / 2) * (PI / 2)
+
+  return Object.fromEntries(Object.entries(obj).map(([key, e], i) => [key, (i ? sin(ar) : cos(ar)) * e]))
 })
+
 
 </script>
 
@@ -33,6 +39,8 @@ const size = computed(() => {
   aspect-ratio: 1/1
 #backplate
   aspect-ratio: 1/1
+  min-width: 100px
+  min-height: 100px
   height: 100%
   width: 100%
   padding: 0px

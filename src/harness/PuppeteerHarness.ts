@@ -1,15 +1,19 @@
 import { createApp, defineComponent } from "vue"
-import { changeListeners, control, controlRegistry, socket } from "../core/control/Control.type"
+import { changeListeners, control, controlRegistry, socket, useControlRegistry } from "../core/control/Control.type"
 import { Vec2 } from "../core/types/vec"
+import { createPinia } from 'pinia'
 import Stage from "../Stage"
+
 import App from '../ui/App.vue'
 
 export default () => {
-  if (!changeListeners["Aspect Ratio"]) changeListeners["Aspect Ratio"] = []
-  changeListeners["Aspect Ratio"].push((msg) => {
-    console.log(msg)
+  useControlRegistry().registerChangeLister("Aspect Ratio", (msg) => {
     Stage.aspectRatio = msg.value
   })
 
-  createApp(App).mount("#app")
+  const pinia = createPinia()
+
+  createApp(App)
+    .use(pinia)
+    .mount("#app")
 }

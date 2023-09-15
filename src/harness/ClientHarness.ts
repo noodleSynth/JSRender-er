@@ -1,4 +1,4 @@
-import { control } from "../core/control/Control.type"
+// import { control, useControlRegistry } from "../core/control/Control.type"
 import { Vec2 } from "../core/types/vec"
 import Stage from "../Stage"
 
@@ -14,8 +14,13 @@ export default () => {
     Stage.size = size as Vec2
 
     // Harness handover to socket sync
-    control('Aspect Ratio', Stage.aspectRatio).value = Stage.aspectRatio
+    // control('Aspect Ratio', Stage.aspectRatio).value = Stage.aspectRatio
   }
+
+  // const controlRegistry = useControlRegistry()
+  // controlRegistry.registerChangeLister('connect', (msg) => {
+  //   control('Aspect Ratio', Stage.aspectRatio).value = Stage.aspectRatio
+  // })
 
   window.addEventListener("resize", handleResize)
   handleResize()

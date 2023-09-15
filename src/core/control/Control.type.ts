@@ -21,6 +21,9 @@ socket.on("update_control", ({ key, value, type }: ControlUpdateMessage) => {
 })
 
 socket.on("connect", () => {
+  const registry = useControlRegistry()
+  registry.dispatchChangeLister({ key: "connect", value: "", type: "lifecycle" })
+  Object.entries(controlRegistry).forEach(([key, control]) => socket.timeout(5000).emit("update_control", { key, value: control.value, type: "lifecycle" }))
   console.log("Connected")
   socket.timeout(200).emit("testing")
 })
@@ -45,6 +48,15 @@ export const useControlRegistry = () => ({
     return Object.entries(controlRegistry).map(([key, value]) => ({ key, value: value.value, type: typeof (value._value) }))
   },
   registryKeys: () => Object.keys(controlRegistry),
+  registerChangeLister: (key: string, callback: { (msg: ControlUpdateMessage): void }) => {
+    if (!changeListeners[key]) changeListeners[key] = [callback]
+    if (changeListeners[key].includes(callback)) return
+    changeListeners[key].push(callback)
+  },
+  dispatchChangeLister: (msg: ControlUpdateMessage) => {
+    if (!changeListeners[msg.key]) return
+    changeListeners[msg.key].forEach((e) => e(msg))
+  },
   controlRegistry
 })
 
